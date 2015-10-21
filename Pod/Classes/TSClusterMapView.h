@@ -158,6 +158,10 @@ typedef NS_ENUM(NSInteger, ADClusterBufferSize) {
  */
 @property (assign, nonatomic) BOOL clusterZoomsOnTap;
 
+@property (assign, nonatomic) BOOL clusterDisabled; // added by Clarke.  SO we can disable clustering when not needed
+
+
+
 /**
  If YES any new clusters that need to be shown that don't have a previous location to animate from will appear with a scale animation.
  */

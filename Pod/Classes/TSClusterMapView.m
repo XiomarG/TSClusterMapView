@@ -125,6 +125,7 @@ NSString * const KDTreeClusteringProgress = @"KDTreeClusteringProgress";
     self.clusterTitle = @"%d elements";
     self.clusterZoomsOnTap = YES;
     self.clusterAppearanceAnimated = YES;
+    self.clusterDisabled = NO;
 }
 
 - (void)setClusterEdgeBufferSize:(ADClusterBufferSize)clusterEdgeBufferSize {
@@ -668,7 +669,10 @@ NSString * const KDTreeClusteringProgress = @"KDTreeClusteringProgress";
 
 - (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated {
     
-    [self clusterVisibleMapRectForceRefresh:NO];
+    if ( !self.clusterDisabled) {
+    NSLog(@"calling clusterVisibleMapRectForceRefresh from regiondidchange");
+        [self clusterVisibleMapRectForceRefresh:NO];
+    }
     
     if ([_secondaryDelegate respondsToSelector:@selector(mapView:regionDidChangeAnimated:)]) {
         [_secondaryDelegate mapView:self regionDidChangeAnimated:animated];
@@ -676,7 +680,7 @@ NSString * const KDTreeClusteringProgress = @"KDTreeClusteringProgress";
 }
 
 - (void)mapView:(MKMapView *)mapView didSelectAnnotationView:(MKAnnotationView *)view {
-    
+    self.clusterDisabled = YES;  // disable clustering when selected annotation. otherwise the selected annotation will jump due to re-clustering, causing chaos.  by clarke
     BOOL isClusterAnnotation = NO;
     ADClusterAnnotation *clusterAnnotation;
     if ([view isKindOfClass:[TSClusterAnnotationView class]]) {
@@ -694,7 +698,9 @@ NSString * const KDTreeClusteringProgress = @"KDTreeClusteringProgress";
 }
 
 - (void)mapView:(MKMapView *)mapView didDeselectAnnotationView:(MKAnnotationView *)view {
-    
+    if (self.selectedAnnotations.count == 0) {
+        self.clusterDisabled = NO;
+    }
     if ([_secondaryDelegate respondsToSelector:@selector(mapView:didDeselectAnnotationView:)]) {
         [_secondaryDelegate mapView:mapView didDeselectAnnotationView:[self filterInternalView:view]];
     }
